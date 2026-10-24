@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Performance Dashboard</h1>
+            <p class="page-subtitle">4-table JOIN view — WorkoutSets × TrainingSessions × Athletes × Exercises</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ url_for('log_workout') }}" class="btn btn-primary">
+                <span>⚡</span> Log Workout
+            </a>
+            <a href="{{ url_for('workouts') }}" class="btn btn-secondary">
+                <span>📋</span> Full Workout Page
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ KPI Cards ═══════ -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-body">
+            <span class="stat-value">{{ stats.total_sets }}</span>
+            <span class="stat-label">Total Sets</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-body">
+            <span class="stat-value">{{ "{:,.0f}".format(stats.total_volume) }}</span>
+            <span class="stat-label">Volume (kg)</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💪</div>
+        <div class="stat-body">
+            <span class="stat-value">{{ stats.avg_rpe }}</span>
+            <span class="stat-label">Avg RPE</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-body">
+            <span class="stat-value">{{ stats.athlete_count }}</span>
+            <span class="stat-label">Athletes</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ Dashboard Table (4-Table JOIN Workout Table) ═══════ -->
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span style="font-size: 1.25rem;">⚡</span>
+            <h2 class="card-title" style="margin: 0;">Workout Performance Log (4-Table JOIN)</h2>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="badge badge--info">{{ rows|length }} sets</span>
+            <a href="{{ url_for('log_workout') }}" class="btn btn-sm btn-primary">＋ Log Set</a>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="dashboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Athlete</th>
+                    <th>Date</th>
+                    <th>Session Type</th>
+                    <th>Duration</th>
+                    <th>Exercise</th>
+                    <th>Muscle Group</th>
+                    <th>Mechanics</th>
+                    <th>Weight (kg)</th>
+                    <th>Reps</th>
+                    <th>RPE</th>
+                    <th>Volume</th>
+                    <th class="cell-actions-head">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td class="cell-mono">{{ row.set_id }}</td>
+                    <td class="cell-name">{{ row.athlete_name }}</td>
+                    <td class="cell-mono">{{ row.session_date }}</td>
+                    <td>
+                        <a href="{{ url_for('query_console', session_id=row.session_id) }}" title="Click to inspect this session in SQL Query Console" style="text-decoration: none;">
+                            <span class="badge badge--session
+                                {% if row.session_type == 'Max Strength' %}badge--strength
+                                {% elif row.session_type == 'Hypertrophy' %}badge--hypertrophy
+                                {% elif row.session_type == 'Explosive Power' %}badge--power
+                                {% elif row.session_type == 'Conditioning' %}badge--conditioning
+                                {% else %}badge--endurance{% endif %}">
+                                {{ row.session_type }}
+                            </span>
+                        </a>
+                    </td>
+                    <td class="cell-mono">{{ row.session_duration }} min</td>
+                    <td class="cell-name">{{ row.exercise_name }}</td>
+                    <td>
+                        <span class="badge badge--muscle">{{ row.muscle_group }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge--mech
+                            {% if row.mechanics == 'Compound' %}badge--compound{% else %}badge--isolation{% endif %}">
+                            {{ row.mechanics }}
+                        </span>
+                    </td>
+                    <td class="cell-num">{{ row.weight }}</td>
+                    <td class="cell-num">{{ row.reps }}</td>
+                    <td>
+                        <span class="rpe-chip
+                            {% if row.rpe >= 9 %}rpe--high
+                            {% elif row.rpe == 8 %}rpe--med
+                            {% else %}rpe--low{% endif %}">
+                            {{ row.rpe }}
+                        </span>
+                    </td>
+                    <td class="cell-num cell-volume">{{ row.volume_load }} kg</td>
+                    <td class="cell-actions">
+                        <form method="POST" action="{{ url_for('delete_set', set_id=row.set_id) }}"
+                              class="inline-form" onsubmit="return confirmDeleteSet('{{ row.set_id }}', '{{ row.athlete_name }}')">
+                            <button type="submit" class="btn btn-sm btn-delete" title="Delete Set">
+                                🗑️
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="13" class="empty-state">No workout data available. <a href="{{ url_for('log_workout') }}">Log a workout now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

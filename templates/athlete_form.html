@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Athlete – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1 class="page-title">{{ action }} Athlete</h1>
+    <p class="page-subtitle">
+        {% if action == 'Add' %}
+            Fill in the details below to register a new athlete.
+        {% else %}
+            Update the athlete's profile information.
+        {% endif %}
+    </p>
+</section>
+
+<div class="form-card">
+    <form method="POST" class="athlete-form" id="athlete-form" novalidate>
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   class="form-input"
+                   placeholder="e.g. Marcus Thompson"
+                   value="{{ athlete.get('name', '') }}"
+                   required
+                   autofocus>
+        </div>
+
+        <!-- Height -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="height" class="form-label">Height (cm)</label>
+                <input type="number"
+                       id="height"
+                       name="height"
+                       class="form-input"
+                       placeholder="e.g. 185.50"
+                       step="0.01"
+                       min="100"
+                       max="250"
+                       value="{{ athlete.get('height', '') }}"
+                       required>
+            </div>
+
+            <!-- Weight -->
+            <div class="form-group">
+                <label for="weight" class="form-label">Weight (kg)</label>
+                <input type="number"
+                       id="weight"
+                       name="weight"
+                       class="form-input"
+                       placeholder="e.g. 82.50"
+                       step="0.01"
+                       min="30"
+                       max="250"
+                       value="{{ athlete.get('weight', '') }}"
+                       required>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="{{ url_for('athletes') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                {% if action == 'Add' %}
+                    ＋ Create Athlete
+                {% else %}
+                    ✓ Save Changes
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

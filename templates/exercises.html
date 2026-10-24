@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Exercises – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Exercise Library</h1>
+            <p class="page-subtitle">Manage movement database, muscle groups, and movement mechanics.</p>
+        </div>
+        <a href="{{ url_for('add_exercise') }}" class="btn btn-primary">
+            <span>＋</span> Add Exercise
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Movement Catalog</h2>
+        <span class="badge badge--info">{{ exercises|length }} exercises</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="exercises-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Exercise Name</th>
+                    <th>Target Muscle Group</th>
+                    <th>Mechanics</th>
+                    <th class="cell-actions-head">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in exercises %}
+                <tr>
+                    <td class="cell-mono">{{ e.exercise_id }}</td>
+                    <td class="cell-name">{{ e.name }}</td>
+                    <td>
+                        <span class="badge badge--muscle">{{ e.muscle_group }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge--mech
+                            {% if e.mechanics == 'Compound' %}badge--compound{% else %}badge--isolation{% endif %}">
+                            {{ e.mechanics }}
+                        </span>
+                    </td>
+                    <td class="cell-actions">
+                        <a href="{{ url_for('edit_exercise', exercise_id=e.exercise_id) }}" class="btn btn-sm btn-edit" title="Edit Exercise">
+                            ✏️ Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_exercise', exercise_id=e.exercise_id) }}"
+                              class="inline-form" onsubmit="return confirmDeleteExercise('{{ e.name }}')">
+                            <button type="submit" class="btn btn-sm btn-delete" title="Delete Exercise">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">No exercises found. <a href="{{ url_for('add_exercise') }}">Add one now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

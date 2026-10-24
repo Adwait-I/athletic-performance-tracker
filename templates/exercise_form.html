@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Exercise – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1 class="page-title">{{ action }} Exercise</h1>
+    <p class="page-subtitle">
+        {% if action == 'Add' %}
+            Register a new exercise movement in the catalog.
+        {% else %}
+            Update movement mechanics or muscle targeting.
+        {% endif %}
+    </p>
+</section>
+
+<div class="form-card">
+    <form method="POST" class="athlete-form" id="exercise-form" novalidate>
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name" class="form-label">Exercise Name</label>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   class="form-input"
+                   placeholder="e.g. Incline Dumbbell Press"
+                   value="{{ exercise.get('name', '') }}"
+                   required
+                   autofocus>
+        </div>
+
+        <!-- Muscle Group & Mechanics -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="muscle_group" class="form-label">Target Muscle Group</label>
+                <select id="muscle_group" name="muscle_group" class="form-input" required>
+                    <option value="" disabled {% if not exercise.get('muscle_group') %}selected{% endif %}>Select group...</option>
+                    {% for mg in ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Full Body'] %}
+                    <option value="{{ mg }}" {% if exercise.get('muscle_group') == mg %}selected{% endif %}>{{ mg }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mechanics" class="form-label">Movement Mechanics</label>
+                <select id="mechanics" name="mechanics" class="form-input" required>
+                    <option value="" disabled {% if not exercise.get('mechanics') %}selected{% endif %}>Select mechanics...</option>
+                    <option value="Compound" {% if exercise.get('mechanics') == 'Compound' %}selected{% endif %}>Compound (Multi-joint)</option>
+                    <option value="Isolation" {% if exercise.get('mechanics') == 'Isolation' %}selected{% endif %}>Isolation (Single-joint)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="{{ url_for('exercises') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                {% if action == 'Add' %}
+                    ＋ Create Exercise
+                {% else %}
+                    ✓ Save Changes
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

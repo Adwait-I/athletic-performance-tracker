@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Athletes – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Athlete Management</h1>
+            <p class="page-subtitle">View, create, edit, and remove athletes from the roster.</p>
+        </div>
+        <a href="{{ url_for('add_athlete') }}" class="btn btn-primary">
+            <span>＋</span> Add Athlete
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Roster</h2>
+        <span class="badge badge--info">{{ athletes|length }} athletes</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="athletes-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Height (cm)</th>
+                    <th>Weight (kg)</th>
+                    <th>BMI</th>
+                    <th class="cell-actions-head">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in athletes %}
+                <tr>
+                    <td class="cell-mono">{{ a.athlete_id }}</td>
+                    <td class="cell-name">{{ a.name }}</td>
+                    <td class="cell-num">{{ a.height }}</td>
+                    <td class="cell-num">{{ a.weight }}</td>
+                    <td class="cell-num">
+                        {% set bmi = (a.weight / ((a.height / 100) ** 2)) | round(1) %}
+                        <span class="bmi-chip
+                            {% if bmi < 18.5 %}bmi--under
+                            {% elif bmi < 25 %}bmi--normal
+                            {% elif bmi < 30 %}bmi--over
+                            {% else %}bmi--obese{% endif %}">
+                            {{ bmi }}
+                        </span>
+                    </td>
+                    <td class="cell-actions">
+                        <a href="{{ url_for('edit_athlete', athlete_id=a.athlete_id) }}" class="btn btn-sm btn-edit" title="Edit">
+                            ✏️ Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_athlete', athlete_id=a.athlete_id) }}"
+                              class="inline-form" onsubmit="return confirmDelete('{{ a.name }}')">
+                            <button type="submit" class="btn btn-sm btn-delete" title="Delete">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="empty-state">No athletes found. <a href="{{ url_for('add_athlete') }}">Add one now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

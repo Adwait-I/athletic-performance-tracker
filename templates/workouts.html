@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Workout Sets – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Workout Sets Log</h1>
+            <p class="page-subtitle">Full historical workout log connecting athletes, sessions, exercises, and performance sets.</p>
+        </div>
+        <a href="{{ url_for('log_workout') }}" class="btn btn-primary">
+            <span>⚡</span> Log Workout Set
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">All Logged Sets (4-Table JOIN)</h2>
+        <span class="badge badge--info">{{ workouts|length }} sets</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="workouts-page-table">
+            <thead>
+                <tr>
+                    <th>Set ID</th>
+                    <th>Athlete</th>
+                    <th>Session Date</th>
+                    <th>Session Type</th>
+                    <th>Duration</th>
+                    <th>Exercise</th>
+                    <th>Muscle Group</th>
+                    <th>Mechanics</th>
+                    <th>Weight (kg)</th>
+                    <th>Reps</th>
+                    <th>RPE</th>
+                    <th>Volume (kg)</th>
+                    <th class="cell-actions-head">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in workouts %}
+                <tr>
+                    <td class="cell-mono">#{{ w.set_id }}</td>
+                    <td class="cell-name">{{ w.athlete_name }}</td>
+                    <td class="cell-mono">{{ w.session_date }}</td>
+                    <td>
+                        <a href="{{ url_for('query_console', session_id=w.session_id) }}" title="Click to inspect this session in SQL Query Console" style="text-decoration: none;">
+                            <span class="badge badge--session
+                                {% if w.session_type == 'Max Strength' %}badge--strength
+                                {% elif w.session_type == 'Hypertrophy' %}badge--hypertrophy
+                                {% elif w.session_type == 'Explosive Power' %}badge--power
+                                {% elif w.session_type == 'Conditioning' %}badge--conditioning
+                                {% else %}badge--endurance{% endif %}">
+                                {{ w.session_type }}
+                            </span>
+                        </a>
+                    </td>
+                    <td class="cell-mono">{{ w.session_duration }} min</td>
+                    <td class="cell-name">{{ w.exercise_name }}</td>
+                    <td>
+                        <span class="badge badge--muscle">{{ w.muscle_group }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge--mech
+                            {% if w.mechanics == 'Compound' %}badge--compound{% else %}badge--isolation{% endif %}">
+                            {{ w.mechanics }}
+                        </span>
+                    </td>
+                    <td class="cell-num">{{ w.weight }}</td>
+                    <td class="cell-num">{{ w.reps }}</td>
+                    <td>
+                        <span class="rpe-chip
+                            {% if w.rpe >= 9 %}rpe--high
+                            {% elif w.rpe == 8 %}rpe--med
+                            {% else %}rpe--low{% endif %}">
+                            {{ w.rpe }}
+                        </span>
+                    </td>
+                    <td class="cell-num cell-volume">{{ w.volume_load }} kg</td>
+                    <td class="cell-actions">
+                        <form method="POST" action="{{ url_for('delete_set', set_id=w.set_id) }}"
+                              class="inline-form" onsubmit="return confirmDeleteSet('{{ w.set_id }}', '{{ w.athlete_name }}')">
+                            <button type="submit" class="btn btn-sm btn-delete" title="Delete Set">
+                                🗑️
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="13" class="empty-state">No workout sets recorded. <a href="{{ url_for('log_workout') }}">Log one now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

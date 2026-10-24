@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Log Workout – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1 class="page-title">Log Workout Set</h1>
+    <p class="page-subtitle">Record a training session and performance set for an athlete.</p>
+</section>
+
+<div class="form-card" style="max-width: 680px;">
+    <form method="POST" action="{{ url_for('log_workout') }}" class="athlete-form" id="workout-form" novalidate>
+        
+        <!-- Athlete & Date -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="athlete_id" class="form-label">Athlete</label>
+                <select id="athlete_id" name="athlete_id" class="form-input" required autofocus>
+                    <option value="" disabled selected>Select athlete...</option>
+                    {% for a in athletes %}
+                    <option value="{{ a.athlete_id }}">{{ a.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date" class="form-label">Session Date</label>
+                <input type="date" id="date" name="date" class="form-input" value="{{ today }}" required>
+            </div>
+        </div>
+
+        <!-- Session Type & Duration -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="session_type" class="form-label">Session Type</label>
+                <select id="session_type" name="session_type" class="form-input" required>
+                    <option value="Hypertrophy" selected>Hypertrophy (Muscle Building)</option>
+                    <option value="Max Strength">Max Strength (Heavy 1-5 reps)</option>
+                    <option value="Explosive Power">Explosive Power / Olympic</option>
+                    <option value="Conditioning">Conditioning / MetCon</option>
+                    <option value="Endurance">Endurance</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="duration" class="form-label">Duration (Minutes)</label>
+                <input type="number" id="duration" name="duration" class="form-input" value="60" min="10" max="300" required>
+            </div>
+        </div>
+
+        <!-- Exercise Selection -->
+        <div class="form-group">
+            <label for="exercise_id" class="form-label">Exercise Movement</label>
+            <select id="exercise_id" name="exercise_id" class="form-input" required>
+                <option value="" disabled selected>Select exercise...</option>
+                {% for e in exercises %}
+                <option value="{{ e.exercise_id }}">{{ e.name }} ({{ e.muscle_group }} · {{ e.mechanics }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Set Metrics: Weight, Reps, RPE -->
+        <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+            <div class="form-group">
+                <label for="weight" class="form-label">Weight (kg)</label>
+                <input type="number" id="weight" name="weight" class="form-input" step="0.5" min="0" max="500" placeholder="e.g. 100" value="80" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reps" class="form-label">Reps</label>
+                <input type="number" id="reps" name="reps" class="form-input" min="1" max="100" placeholder="e.g. 8" value="8" required>
+            </div>
+
+            <div class="form-group">
+                <label for="rpe" class="form-label">RPE (1 - 10)</label>
+                <input type="number" id="rpe" name="rpe" class="form-input" min="1" max="10" value="8" required>
+            </div>
+        </div>
+
+        <!-- RPE Guide Helper -->
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -0.5rem; margin-bottom: 1rem;">
+            💡 <strong>RPE Scale:</strong> 7 = 3 reps in reserve · 8 = 2 reps in reserve · 9 = 1 rep in reserve · 10 = absolute max effort
+        </p>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                ⚡ Save & Log Set
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

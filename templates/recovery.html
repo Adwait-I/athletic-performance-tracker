@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Recovery Logs – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Daily Recovery Logs</h1>
+            <p class="page-subtitle">Tracking sleep hours, muscular soreness, and recovery readiness across all athletes (1 record per athlete).</p>
+        </div>
+        <a href="{{ url_for('log_recovery') }}" class="btn btn-primary">
+            <span>＋</span> Log / Update Recovery
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Recovery Monitoring</h2>
+        <span class="badge badge--info" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">{{ recovery_logs|length }} athletes tracked</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="recovery-table">
+            <thead>
+                <tr>
+                    <th>Log ID</th>
+                    <th>Athlete</th>
+                    <th>Date</th>
+                    <th>Sleep Duration</th>
+                    <th>Soreness Rating (1 - 10)</th>
+                    <th>Physiological Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recovery_logs %}
+                <tr>
+                    <td class="cell-mono">#{{ r.recovery_id }}</td>
+                    <td class="cell-name">{{ r.athlete_name }}</td>
+                    <td class="cell-mono">{{ r.recovery_date }}</td>
+                    <td class="cell-mono">
+                        <span style="font-weight: 600; color: {% if r.sleep_hours >= 8 %}var(--accent-emerald){% elif r.sleep_hours >= 7 %}var(--accent-cyan){% else %}var(--accent-coral){% endif %};">
+                            {{ r.sleep_hours }} hrs
+                        </span>
+                    </td>
+                    <td>
+                        <span class="rpe-chip
+                            {% if r.soreness_level <= 3 %}rpe--low
+                            {% elif r.soreness_level <= 6 %}rpe--med
+                            {% else %}rpe--high{% endif %}">
+                            {{ r.soreness_level }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if r.soreness_level <= 3 and r.sleep_hours >= 7.5 %}
+                            <span class="badge badge--conditioning" style="font-size: 0.72rem;">🟢 Optimal Recovery</span>
+                        {% elif r.soreness_level >= 7 or r.sleep_hours < 7.0 %}
+                            <span class="badge badge--strength" style="font-size: 0.72rem;">🔴 High Fatigue / Sore</span>
+                        {% else %}
+                            <span class="badge badge--power" style="font-size: 0.72rem;">🟡 Moderate Readiness</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-actions">
+                        <a href="{{ url_for('log_recovery', athlete_id=r.athlete_id) }}" class="btn btn-sm btn-edit" title="Update recovery log for {{ r.athlete_name }}">
+                            ✏️ Update
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_recovery', recovery_id=r.recovery_id) }}"
+                              class="inline-form" onsubmit="return confirm('Remove recovery log for {{ r.athlete_name }}?')">
+                            <button type="submit" class="btn btn-sm btn-delete" title="Delete">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="empty-state">No recovery logs found. <a href="{{ url_for('log_recovery') }}">Log one now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

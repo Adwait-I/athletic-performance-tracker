@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intelligent Athletic Performance Tracker – monitor workouts, recovery, and biometrics.">
+    <title>{% block title %}Athletic Performance Tracker{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ═══════ Navigation ═══════ -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">
+                <span class="brand-icon">⚡</span>
+                <span class="brand-text">AthletIQ</span>
+            </a>
+            <ul class="nav-links">
+                <li>
+                    <a href="{{ url_for('dashboard') }}"
+                       class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('athletes') }}"
+                       class="nav-link {% if request.endpoint in ('athletes', 'add_athlete', 'edit_athlete') %}active{% endif %}">
+                        <span class="nav-icon">🏋️</span> Athletes
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('exercises') }}"
+                       class="nav-link {% if request.endpoint in ('exercises', 'add_exercise', 'edit_exercise') %}active{% endif %}">
+                        <span class="nav-icon">📋</span> Exercises
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('workouts') }}"
+                       class="nav-link {% if request.endpoint == 'workouts' %}active{% endif %}">
+                        <span class="nav-icon">⚡</span> Workouts
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('sessions') }}"
+                       class="nav-link {% if request.endpoint == 'sessions' %}active{% endif %}">
+                        <span class="nav-icon">📅</span> Sessions
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('recovery') }}"
+                       class="nav-link {% if request.endpoint in ('recovery', 'log_recovery') %}active{% endif %}">
+                        <span class="nav-icon">🛌</span> Recovery
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('query_console') }}"
+                       class="nav-link {% if request.endpoint == 'query_console' %}active{% endif %}">
+                        <span class="nav-icon">🔍</span> SQL Console
+                    </a>
+                </li>
+            </ul>
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
+                <a href="{{ url_for('log_workout') }}" class="btn btn-primary btn-nav" style="background: var(--accent-cyan); color: #0b0f19;">
+                    <span>⚡</span> Log Workout
+                </a>
+                <a href="{{ url_for('add_athlete') }}" class="btn btn-secondary btn-nav">
+                    <span>＋</span> Add Athlete
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════ DB Status Banner ═══════ -->
+    {% if db_health and db_health.status == 'error' %}
+    <div class="db-banner db-banner--error">
+        <span class="db-banner-icon">🔴</span>
+        <span>{{ db_health.message }}</span>
+    </div>
+    {% endif %}
+
+    <!-- ═══════ Flash Messages ═══════ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash flash--{{ category }}">
+            <span class="flash-text">{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ═══════ Main Content ═══════ -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════ Footer ═══════ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>⚡ AthletIQ Performance Tracker</span>
+            <span class="footer-sep">·</span>
+            <span>Flask + PostgreSQL + Raw SQL</span>
+            <span class="footer-sep">·</span>
+            <span class="footer-status">
+                {% if db_health and db_health.status == 'connected' %}
+                    🟢 DB Connected
+                {% else %}
+                    🔴 DB Offline
+                {% endif %}
+            </span>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

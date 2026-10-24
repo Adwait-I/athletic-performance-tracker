@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Training Sessions – AthletIQ{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Training Sessions</h1>
+            <p class="page-subtitle">Historical log of all training sessions with aggregated set counts and total
+                volume.</p>
+        </div>
+        <a href="{{ url_for('log_workout') }}" class="btn btn-primary">
+            <span>⚡</span> Log Session
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Sessions Log</h2>
+        <span class="badge badge--info">{{ sessions|length }} sessions</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table" id="sessions-table">
+            <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>Athlete</th>
+                    <th>Date</th>
+                    <th>Session Type</th>
+                    <th>Duration</th>
+                    <th>Sets Logged</th>
+                    <th>Total Volume</th>
+                    <th class="cell-actions-head">Query Sets</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td class="cell-mono">
+                        <a href="{{ url_for('query_console', session_id=s.session_id) }}"
+                            style="color: var(--accent-cyan); font-weight: 700; text-decoration: underline;"
+                            title="Click to inspect this session in SQL Query Console">
+                            #{{ s.session_id }}
+                        </a>
+                    </td>
+                    <td class="cell-name">{{ s.athlete_name }}</td>
+                    <td class="cell-mono">{{ s.session_date }}</td>
+                    <td>
+                        <span class="badge badge--session
+                            {% if s.session_type == 'Max Strength' %}badge--strength
+                            {% elif s.session_type == 'Hypertrophy' %}badge--hypertrophy
+                            {% elif s.session_type == 'Explosive Power' %}badge--power
+                            {% elif s.session_type == 'Conditioning' %}badge--conditioning
+                            {% else %}badge--endurance{% endif %}">
+                            {{ s.session_type }}
+                        </span>
+                    </td>
+                    <td class="cell-mono">{{ s.duration }} min</td>
+                    <td class="cell-num">
+                        <span class="badge badge--info" style="font-size: 0.75rem;">{{ s.total_sets }} sets</span>
+                    </td>
+                    <td class="cell-num cell-volume">{{ "{:,.0f}".format(s.total_volume) }} kg</td>
+                    <td class="cell-actions">
+                        <a href="{{ url_for('query_console', session_id=s.session_id) }}"
+                            class="btn btn-sm btn-secondary"
+                            style="font-size: 0.75rem; padding: 0.3rem 0.6rem; color: var(--accent-cyan);"
+                            title="Run SQL query for this session">
+                            🔍 View Sets
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="empty-state">No training sessions recorded. <a
+                            href="{{ url_for('log_workout') }}">Log one now →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
